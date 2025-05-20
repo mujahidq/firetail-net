@@ -1,0 +1,3186 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Aura API",
+    "version": "v1",
+    "description": "This is the v1 release of the Aura API that allows you to programmatically provision and manage your Aura instances. \n\nFor more information on how to use the API, see the [Aura API documentation](https://neo4j.com/docs/aura/platform/api/overview/).\n\n[Provide feedback](https://docs.google.com/forms/d/e/1FAIpQLSfNZMyQRnI_ZzK8IJ2E266DP_-zLDBWzk1OaUkPem16V-ekZQ/viewform) on the Aura API.",
+    "termsOfService": "https://console.neo4j.io/#terms"
+  },
+  "tags": [
+    {
+      "name": "instances",
+      "description": "Relates to AuraDB or AuraDS instances."
+    },
+    {
+      "name": "projects",
+      "description": "Relates to an Aura Project."
+    },
+    {
+      "name": "customer managed keys",
+      "description": "Relates to Customer Managed Keys."
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.neo4j.io/v1",
+      "description": "Aura API v1"
+    }
+  ],
+  "paths": {
+    "/instances": {
+      "parameters": [],
+      "get": {
+        "summary": "Returns a list of instances",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "get-instances",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InstanceSummary"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "List of Aura instances": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "2f49c2b3",
+                          "name": "Production",
+                          "tenant_id": "YOUR_PROJECT_ID",
+                          "cloud_provider": "gcp"
+                        },
+                        {
+                          "id": "b51dc964",
+                          "name": "Instance01",
+                          "tenant_id": "YOUR_PROJECT_ID",
+                          "cloud_provider": "aws"
+                        },
+                        {
+                          "id": "432392ae",
+                          "name": "Recommendations",
+                          "tenant_id": "YOUR_PROJECT_ID",
+                          "cloud_provider": "azure"
+                        },
+                        {
+                          "id": "524b7d8d",
+                          "name": "Northwind",
+                          "tenant_id": "YOUR_PROJECT_ID",
+                          "cloud_provider": "gcp"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint returns a list containing a summary of each of your Aura instances. To find out more about a specific instance, retrieve the details using the GET /instances/{instanceId} endpoint.\n\nYou can filter instances in a particular tenant using GET /instances?tenantId={tenantId}. If the tenant query parameter is not specified, this endpoints lists all instances a user has access to across all tenants.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tenantIdOptional"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Creates a new instance",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-instances",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "The instance ID."
+                        },
+                        "connection_url": {
+                          "type": "string",
+                          "description": "The URL to connect to the Neo4j instance with."
+                        },
+                        "username": {
+                          "type": "string",
+                          "example": "neo4j",
+                          "description": "The initial username for authenticating with this instance."
+                        },
+                        "password": {
+                          "type": "string",
+                          "description": "The initial password for authenticating with this instance."
+                        },
+                        "tenant_id": {
+                          "type": "string",
+                          "description": "The ID for the project."
+                        },
+                        "cloud_provider": {
+                          "$ref": "#/components/schemas/CloudProvider"
+                        },
+                        "region": {
+                          "$ref": "#/components/schemas/InstanceRegion"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the instance"
+                        },
+                        "type": {
+                          "$ref": "#/components/schemas/InstanceType"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "connection_url",
+                        "username",
+                        "password",
+                        "tenant_id",
+                        "cloud_provider",
+                        "region",
+                        "type",
+                        "name"
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "Instance being created": {
+                    "value": {
+                      "data": {
+                        "id": "db1d1234",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "username": "neo4j",
+                        "password": "letMeIn123!",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "region": "europe-west1",
+                        "type": "enterprise-db",
+                        "name": "Instance01"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            },
+            "links": {
+              "GetInstanceDetails": {
+                "operationId": "get-instance-id",
+                "parameters": {
+                  "instanceId": "$response.body#/data/id"
+                }
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "400": {
+            "description": "The request body contains malformed syntax, or is otherwise invalid. Please check and adjust the request before attempting to send it again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Missing Billing Information for self-serve users": {
+                    "value": {
+                      "errors": [
+                        {
+                          "message": "You must provide billing details in the Aura Console before creating an instance",
+                          "reason": "missing-billing-details"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "405": {
+            "description": "Creating instances is not permitted at this time, probably due to hitting a maximum instances limit. Check the error response body for details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint starts the creation process of an Aura instance.\n\nCreating an instance is an asynchronous operation. Supported instance configurations for your project can be obtained by calling the GET `/tenants/{tenantId}` endpoint. \n\nYou can poll the current status of this operation by periodically getting the instance details for the instance ID using the GET `/instances/{instanceId}` endpoint. Once the status transitions from \"creating\" to \"running\" you may begin to use your instance.\n\nThis endpoint returns your instance ID, initial credentials, connection URL along with your project ID, cloud provider, region, instance type, and the instance name in the response body for you to use once the instance is running. It is important to store these initial credentials until you have the chance to login to your running instance and change them.\nYou must also provide a {cloud_provider} field in the request body, which specifies which cloud provider the instances will be hosted in. The acceptable values for this field are `gcp`, `aws`, or `azure`.\n\nFor AuraDB Virtual Dedicated Cloud instances, and AuraDS Enterprise instances, you can specify a `customer_managed_key_id` to use a Customer Managed Key for encryption.\n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "version": {
+                    "$ref": "#/components/schemas/InstanceVersion"
+                  },
+                  "region": {
+                    "$ref": "#/components/schemas/InstanceRegion"
+                  },
+                  "memory": {
+                    "$ref": "#/components/schemas/InstanceMemory"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Instance01",
+                    "maxLength": 30,
+                    "minLength": 1,
+                    "description": "The name of the instance (any UTF-8 characters with no trailing or leading whitespace)."
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/InstanceType"
+                  },
+                  "tenant_id": {
+                    "type": "string",
+                    "description": "Project ID"
+                  },
+                  "source_instance_id": {
+                    "type": "string",
+                    "example": "db1d1234",
+                    "description": "The ID of the source instance when cloning."
+                  },
+                  "source_snapshot_id": {
+                    "type": "string",
+                    "description": "An optional snapshot ID to create an instance from a specific snapshot. `source_instance_id` must also be provided. Note that the snapshot must be exportable in order to create a new instance with it."
+                  },
+                  "cloud_provider": {
+                    "$ref": "#/components/schemas/CloudProvider"
+                  },
+                  "customer_managed_key_id": {
+                    "type": "string",
+                    "description": "An optional customer managed key to be used for instance creation."
+                  }
+                },
+                "required": [
+                  "version",
+                  "region",
+                  "memory",
+                  "name",
+                  "type",
+                  "tenant_id",
+                  "cloud_provider"
+                ]
+              },
+              "examples": {
+                "Creates an AuraDB Free Instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "1GB",
+                    "name": "Instance01",
+                    "type": "free-db",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Creates an AuraDB Virtual Dedicated Cloud instance": {
+                  "value": {
+                    "version": "4",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance01",
+                    "type": "enterprise-db",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Creates an AuraDS Enterprise instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "enterprise-ds",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Creates an AuraDB Business Critical instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "business-critical",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Creates an AuraDB Professional instance": {
+                  "value": {
+                    "version": "4",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance01",
+                    "type": "professional-db",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Creates an AuraDS Professional instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "professional-ds",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDB Virtual Dedicated Cloud instance": {
+                  "value": {
+                    "version": "4",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance02",
+                    "type": "enterprise-db",
+                    "source_instance_id": "db1d1234",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDB Virtual Dedicated Cloud instance from a snapshot": {
+                  "value": {
+                    "version": "4",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance02",
+                    "type": "enterprise-db",
+                    "source_instance_id": "db1d1234",
+                    "source_snapshot_id": "3e5e6e27-bf0a-4898-abb8-5f3050cac418",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDS Enterprise instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "enterprise-ds",
+                    "source_instance_id": "db1d1234",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDS Enterprise instance from a snapshot": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "enterprise-ds",
+                    "source_instance_id": "db1d1234",
+                    "source_snapshot_id": "3e5e6e27-bf0a-4898-abb8-5f3050cac418",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDB Business Critical instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance02",
+                    "type": "business-critical",
+                    "source_instance_id": "db1d1234",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDB Business Critical instance from a snapshot": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance02",
+                    "type": "business-critical",
+                    "source_instance_id": "db1d1234",
+                    "source_snapshot_id": "3e5e6e27-bf0a-4898-abb8-5f3050cac418",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDB Professional instance": {
+                  "value": {
+                    "version": "4",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance02",
+                    "type": "professional-db",
+                    "source_instance_id": "db1d1234",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDB Professional instance from a snapshot": {
+                  "value": {
+                    "version": "4",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance02",
+                    "type": "professional-db",
+                    "source_instance_id": "db1d1234",
+                    "source_snapshot_id": "3e5e6e27-bf0a-4898-abb8-5f3050cac418",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDS Professional instance": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "professional-ds",
+                    "source_instance_id": "db1d1234",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Clones to a new AuraDS Professional instance from a snapshot": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "8GB",
+                    "name": "Instance02",
+                    "type": "professional-ds",
+                    "source_instance_id": "db1d1234",
+                    "source_snapshot_id": "3e5e6e27-bf0a-4898-abb8-5f3050cac418",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp"
+                  }
+                },
+                "Creates an AuraDB Virtual Dedicated Cloud instance with Customer Managed Key": {
+                  "value": {
+                    "version": "5",
+                    "region": "europe-west1",
+                    "memory": "4GB",
+                    "name": "Instance01",
+                    "type": "enterprise-db",
+                    "tenant_id": "YOUR_PROJECT_ID",
+                    "cloud_provider": "gcp",
+                    "customer_managed_key_id": "UUID_OF_YOUR_KEY"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/instances/sizing": {
+      "post": {
+        "summary": "Estimate the size of a new instance",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-instances-sizing",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "recommended_size": {
+                          "type": "string",
+                          "description": "The recommended instance size."
+                        },
+                        "min_required_memory": {
+                          "type": "string",
+                          "description": "The minimum required memory for the instance."
+                        },
+                        "did_exceed_maximum": {
+                          "type": "boolean",
+                          "description": "Indicates if the instance size exceeds the maximum allowed."
+                        }
+                      },
+                      "required": [
+                        "did_exceed_maximum",
+                        "min_required_memory",
+                        "recommended_size"
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "Sizing details": {
+                    "value": {
+                      "data": {
+                        "did_exceed_maximum": false,
+                        "min_required_memory": "14GB",
+                        "recommended_size": "16GB"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint estimates the size of a new instance based on the provided configuration.\nSupported instance types are `enterprise-ds`, and `professional-ds`, depending on your project configuration.\n\nThe recommended size can can be used to create an instance using POST `/instances`.\n\nThe response includes the recommended instance size, the minimum required memory for the instance, and a boolean value indicating if the instance size exceeds the maximum allowed by your Aura project instance configuration.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "node_count": {
+                    "type": "integer",
+                    "description": "The number of nodes to be stored in the instance."
+                  },
+                  "relationship_count": {
+                    "type": "integer",
+                    "description": "The number of relationships to be stored in the instance."
+                  },
+                  "instance_type": {
+                    "$ref": "#/components/schemas/InstanceType"
+                  },
+                  "algorithm_categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The algorithm categories to be used in the instance."
+                  }
+                },
+                "required": [
+                  "node_count",
+                  "relationship_count"
+                ]
+              },
+              "examples": {
+                "Estimate the size of a new professional-ds instance": {
+                  "value": {
+                    "node_count": 1000000,
+                    "relationship_count": 5000000,
+                    "instance_type": "professional-ds",
+                    "algorithm_categories": [
+                      "pathfinding",
+                      "community-detection"
+                    ]
+                  }
+                },
+                "Estimate the size of a new enterprise-ds instance": {
+                  "value": {
+                    "node_count": 1000000,
+                    "relationship_count": 5000000,
+                    "instance_type": "enterprise-ds",
+                    "algorithm_categories": [
+                      "node-embedding"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/instances/{instanceId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/instanceId"
+        }
+      ],
+      "get": {
+        "summary": "Returns instance details",
+        "tags": [
+          "instances"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "running",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "metrics_integration_url": "YOUR_METRICS_INTEGRATION_ENDPOINT",
+                        "region": "europe-west1",
+                        "type": "enterprise-db",
+                        "memory": "8GB",
+                        "storage": "16GB"
+                      }
+                    }
+                  },
+                  "Instance details with CMK": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "running",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "region": "europe-west1",
+                        "type": "enterprise-db",
+                        "memory": "8GB",
+                        "storage": "16GB",
+                        "customer_managed_key_id": "UUID_OF_YOUR_KEY"
+                      }
+                    }
+                  },
+                  "Instance details with Secondary enabled": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "running",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "region": "europe-west1",
+                        "type": "enterprise-db",
+                        "memory": "8GB",
+                        "storage": "16GB",
+                        "secondary_count": 0
+                      }
+                    }
+                  },
+                  "Instance details with CDC Enrichment Mode enabled": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "running",
+                        "tenant_id": "YOUR_TENANT_ID",
+                        "cloud_provider": "gcp",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "region": "europe-west1",
+                        "type": "enterprise-db",
+                        "memory": "8GB",
+                        "storage": "16GB",
+                        "cdc_enrichment_mode": "FULL"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            },
+            "links": {
+              "PauseInstance": {
+                "operationId": "pause-instance-id",
+                "parameters": {
+                  "instanceId": "$response.body#/data/id"
+                }
+              },
+              "ResumeInstance": {
+                "operationId": "resume-instance-id",
+                "parameters": {
+                  "instanceId": "$response.body#/data/id"
+                }
+              },
+              "DestroyInstance": {
+                "operationId": "delete-instance-id",
+                "parameters": {
+                  "instanceId": "$response.body#/data/id"
+                }
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "operationId": "get-instance-id",
+        "description": "This endpoint returns details about a specific Aura Instance. \n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud."
+      },
+      "delete": {
+        "summary": "Deletes an instance",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "delete-instance-id",
+        "responses": {
+          "202": {
+            "description": "Instance is being deleted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "deleting",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "memory": "8GB",
+                        "region": "europe-west1",
+                        "type": "enterprise-db"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "Starts the deletion process of an Aura instance.\n\nDeleting an instance is an asynchronous operation. You can poll the current status of this operation by periodically getting the instance details for the instance ID using the GET /instances/{instanceId} endpoint.\n\nIf another operation is being performed on the instance you are trying to delete, a 409 Conflict HTTP response code will be returned that indicates that deletion cannot be performed. As deletion is an asynchronous operation, the endpoint returns a 202 Accepted HTTP response code.\n\nAs DELETE is an idempotent HTTP method it is safe to retry or send duplicate requests. However, the server will only reply at most once with a successful deletion response (202 Accepted) and will respond with error status codes for any other requests (most likely with 404 Not Found). We suggest treating either 202 or 404 as signs of completion when retrying requests to this endpoint.\n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud."
+      },
+      "patch": {
+        "summary": "Edits the instance configuration",
+        "description": "This endpoint allows you to rename, resize and update the secondary count or the CDC enrichment mode on an Aura instance.\n\nResizing an instance and changing the secondary count or the CDC enrichment mode is an asynchronous operation. The instance remains available throughout.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "patch-instance-id",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Edit the instance name in the Aura Console.\n\nThe name may include any UTF-8 characters with no trailing or leading whitespace.",
+                    "example": "Instance01",
+                    "maxLength": 30,
+                    "minLength": 1
+                  },
+                  "memory": {
+                    "$ref": "#/components/schemas/InstanceMemory"
+                  }
+                }
+              },
+              "examples": {
+                "Rename the instance": {
+                  "value": {
+                    "name": "Instance02"
+                  }
+                },
+                "Resize the instance": {
+                  "value": {
+                    "memory": "16GB"
+                  }
+                },
+                "Update Secondary Count": {
+                  "value": {
+                    "secondary_count": 4
+                  }
+                },
+                "Update CDC Enrichment Mode": {
+                  "value": {
+                    "cdc_enrichment_mode": "FULL"
+                  }
+                },
+                "Rename and resize the instance": {
+                  "value": {
+                    "name": "Instance02",
+                    "memory": "16GB"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Renamed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "updating",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "memory": "8GB",
+                        "region": "europe-west1",
+                        "type": "enterprise-db"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "202": {
+            "description": "Resize request accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/instances/{instanceId}/overwrite": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/instanceId"
+        }
+      ],
+      "post": {
+        "summary": "Overwrites an instance",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-overwrite-instance",
+        "responses": {
+          "202": {
+            "description": "Overwrite request accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "overwriting",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "memory": "8GB",
+                        "region": "europe-west1",
+                        "type": "enterprise-db"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "Starts the process of overwriting the specified instance with data from the source instance provided.\n\nThe overwrite process mimics the 'Clone to existing' functionality of the Aura Console. \n\nIf only a source_instance_id is provided, a new snapshot of that instance is created and used for overwriting. Alternatively, you can specify an additional source_snapshot_id to use a specific snapshot of the source instance for overwriting.\n\nOverwriting an instance is an asynchronous operation. You can poll the current status of this operation by periodically getting the instance details for the instance ID using the GET /instances/{instanceId} endpoint.\n\nThe time it takes to overwrite depends on the amount of data stored in the instance; larger quantities of data will take longer. The exact time this will take is dependent on the size of your data store.\n\nIf you are trying to overwrite an instance that is already being cloned then, a 409 Conflict HTTP response code will be returned as the operation cannot be performed.\n\nAs overwrite is an asynchronous operation, the endpoint returns a 202 Accepted HTTP response code.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "source_instance_id": {
+                    "type": "string"
+                  },
+                  "source_snapshot_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source_instance_id"
+                ]
+              },
+              "examples": {
+                "Overwrite an instance": {
+                  "value": {
+                    "source_instance_id": "191b0da2"
+                  }
+                },
+                "Overwrite an instance with a specific snapshot": {
+                  "value": {
+                    "source_instance_id": "191b0da2",
+                    "source_snapshot_id": "3e5e6e27-bf0a-4898-abb8-5f3050cac418"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Source Instance ID to use as a seed for overwriting the target instance."
+        }
+      }
+    },
+    "/instances/{instanceId}/pause": {
+      "parameters": [
+        {
+          "name": "instanceId",
+          "in": "path",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Instance ID.",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Pauses an instance.",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-pause-instance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The instance is being paused.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "pausing",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "memory": "8GB",
+                        "region": "europe-west1",
+                        "type": "enterprise-db"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "Starts the pause process of an Aura instance.\n\nPausing an instance is an asynchronous operation. You can poll the current status of this operation by periodically getting the instance details for the instance ID using the GET /instances/{instanceId} endpoint.\n\nThe pause time depends on the amount of data stored in the instance; larger quantities of data will take longer. The exact time this will take is dependent on the size of your data store.\n\nIf another operation is being performed on the instance you are trying to pause, a 409 Conflict HTTP response code will be returned that indicates that the pause operation cannot be performed.\n\nAs pause is an asynchronous operation, the endpoint returns a 202 Accepted HTTP response code.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.\n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud."
+      }
+    },
+    "/instances/{instanceId}/resume": {
+      "parameters": [
+        {
+          "name": "instanceId",
+          "in": "path",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Instance ID.",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Resumes an instance",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-resume-instance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The instance is being resumed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "resuming",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "memory": "8GB",
+                        "region": "europe-west1",
+                        "type": "enterprise-db"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "Starts the resume process of an Aura instance. \n\nResuming an instance is an asynchronous operation. You can poll the current status of this operation by periodically getting the instance details for the instance ID using the GET /instances/{instanceId} endpoint.\n\nIf another operation is being performed on the instance you are trying to resume, a 409 Conflict HTTP response code will be returned that indicates that resume cannot be performed. As resume is an asynchronous operation, the endpoint returns a 202 Accepted HTTP response code.\n\nThis endpoint requires the `Content-Type: application/json` header to be set."
+      }
+    },
+    "/instances/{instanceId}/snapshots/{snapshotId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/instanceId"
+        },
+        {
+          "name": "snapshotId",
+          "in": "path",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Snapshot ID.",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get details of a snapshot.",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "get-snapshot-snapshotid",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "instance_id": {
+                          "type": "string"
+                        },
+                        "profile": {
+                          "type": "string",
+                          "enum": [
+                            "AdHoc",
+                            "Scheduled"
+                          ]
+                        },
+                        "snapshot_id": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "Completed",
+                            "InProgress",
+                            "Failed",
+                            "Pending",
+                            "Cancelled"
+                          ]
+                        },
+                        "timestamp": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "Snapshot details": {
+                    "value": {
+                      "data": {
+                        "instance_id": "Instance01",
+                        "profile": "Scheduled",
+                        "snapshot_id": "2023-01-20T13:44:42Z",
+                        "status": "Completed",
+                        "timestamp": "2023-01-20T13:44:42Z",
+                        "exportable": false
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/SnapshotNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint returns details about a specific snapshot."
+      }
+    },
+    "/instances/{instanceId}/snapshots/{snapshotId}/restore": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/instanceId"
+        },
+        {
+          "name": "snapshotId",
+          "in": "path",
+          "schema": {
+            "type": "string"
+          },
+          "description": "Snapshot ID.",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Restores an instance from a snapshot.",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-restore-snapshot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Request to restore a snapshot accepted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Instance"
+                },
+                "examples": {
+                  "Instance details": {
+                    "value": {
+                      "data": {
+                        "id": "2f49c2b3",
+                        "name": "Production",
+                        "status": "restoring",
+                        "connection_url": "YOUR_CONNECTION_URL",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "cloud_provider": "gcp",
+                        "memory": "8GB",
+                        "region": "europe-west1",
+                        "type": "enterprise-db"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/SnapshotNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint starts the restore process of an Aura instance with the specified snapshot ID.\n\nRestoring a snapshot is an asynchronous operation. You can poll the current status of this operation by periodically getting the instance details for the instance ID using the GET /instances/{instanceId} endpoint.\n\nIf another operation is being performed on the instance you are trying to restore, a 409 Conflict HTTP response code will be returned that indicates that restore cannot be performed. As restore is an asynchronous operation, the endpoint returns a 202 Accepted HTTP response code.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.\n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud."
+      }
+    },
+    "/instances/{instanceId}/snapshots": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/instanceId"
+        }
+      ],
+      "get": {
+        "summary": "Returns a list of snapshots",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "get-snapshots",
+        "responses": {
+          "200": {
+            "description": "A List of snapshots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "instance_id": {
+                            "type": "string"
+                          },
+                          "profile": {
+                            "type": "string",
+                            "enum": [
+                              "AdHoc",
+                              "Scheduled"
+                            ]
+                          },
+                          "snapshot_id": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "Completed",
+                              "InProgress",
+                              "Failed",
+                              "Pending"
+                            ]
+                          },
+                          "timestamp": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Example 1": {
+                    "value": {
+                      "data": [
+                        {
+                          "instance_id": "9o2he2a1",
+                          "profile": "Scheduled",
+                          "snapshot_id": "2023-01-20T13:44:42Z",
+                          "status": "Completed",
+                          "timestamp": "2023-01-20T13:44:42Z",
+                          "exportable": false
+                        },
+                        {
+                          "instance_id": "415ced99",
+                          "profile": "AdHoc",
+                          "snapshot_id": "2023-01-20T18:07:25Z-adhoc",
+                          "status": "Completed",
+                          "timestamp": "2023-01-20T18:07:25Z",
+                          "exportable": true
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint returns a list of available snapshots for a given date. If a date is not specified, snapshots from the current day will be returned.\n\nTo list snapshots for a specific date, pass the date query parameter with an ISO formatted date string (YYYY-MM-DD).",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query",
+            "name": "date",
+            "description": "An optional date parameter to list snapshots for a given day, defaults to today."
+          }
+        ]
+      },
+      "post": {
+        "summary": "Takes an on-demand snapshot",
+        "tags": [
+          "instances"
+        ],
+        "operationId": "post-snapshots",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Snapshot request successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "snapshot_id"
+                      ],
+                      "properties": {
+                        "snapshot_id": {
+                          "type": "string",
+                          "description": "The ID of the created snapshot"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "402": {
+            "description": "Payment Required."
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/InstanceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint starts the on-demand snapshot creation process for an Aura instance.\n\nCreating a snapshot is an asynchronous operation. You can poll the current status of this operation by periodically getting the snapshots details for the instance ID using the GET /instances/{instanceId}/snapshots endpoint.\n\nThe time taken to complete a snapshot depends on the amount of data stored in the instance; larger quantities of data will take longer. The exact time this will take is dependent on the size of your data store.\n\nAs this endpoint performs an asynchronous operation, the request returns a 202 Accepted HTTP response code.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.",
+        "parameters": []
+      }
+    },
+    "/tenants": {
+      "parameters": [],
+      "get": {
+        "summary": "Returns a list of projects",
+        "tags": [
+          "projects"
+        ],
+        "operationId": "get-projects",
+        "description": "This endpoint returns a list containing a summary of each of your Aura projects. To find out more about a specific project, retrieve the details using the GET /tenants/{tenantId} endpoint.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProjectSummary"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "List of projects": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "6981ace7-efe8-4f5c-b7c5-267b5162ce91",
+                          "name": "Production"
+                        },
+                        {
+                          "id": "YOUR_PROJECT_ID",
+                          "name": "Staging"
+                        },
+                        {
+                          "id": "da045ab3-3b89-4f45-8b96-528f2e47cd13",
+                          "name": "Development"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/tenants/{tenantId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/tenantId"
+        }
+      ],
+      "get": {
+        "summary": "Returns project details",
+        "tags": [
+          "projects"
+        ],
+        "operationId": "get-project-id",
+        "description": "This endpoint returns details about a specific Aura project.\n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                },
+                "examples": {
+                  "Project details": {
+                    "value": {
+                      "data": {
+                        "id": "6981ace7-efe8-4f5c-b7c5-267b5162ce91",
+                        "name": "Production",
+                        "instance_configurations": [
+                          {
+                            "region": "europe-west1",
+                            "region_name": "Belgium (europe-west1)",
+                            "type": "enterprise-db",
+                            "memory": "4GB",
+                            "version": "5",
+                            "cloud_provider": "gcp"
+                          },
+                          {
+                            "region": "europe-west1",
+                            "region_name": "Belgium (europe-west1)",
+                            "type": "enterprise-db",
+                            "memory": "8GB",
+                            "version": "5",
+                            "cloud_provider": "gcp"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/ProjectNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    },
+    "/customer-managed-keys": {
+      "parameters": [],
+      "get": {
+        "summary": "Returns a list of customer managed keys",
+        "tags": [
+          "customer managed keys"
+        ],
+        "operationId": "get-customer-managed-keys",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "A summary of a customer managed key",
+                        "required": [
+                          "id",
+                          "name",
+                          "tenant_id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "The UUID of the key"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The name of the key"
+                          },
+                          "tenant_id": {
+                            "type": "string",
+                            "description": "The id of the project which the key belongs to"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "examples": {
+                  "List of Customer Managed Keys": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "f15cc45b-1c29-44e8-911f-3ba719f70ed7",
+                          "name": "Production Key",
+                          "tenant_id": "YOUR_PROJECT_ID"
+                        },
+                        {
+                          "id": "0d971cc4-f703-40fd-8c5c-f5ec134f6c84",
+                          "name": "Dev Key",
+                          "tenant_id": "YOUR_PROJECT_ID"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint returns a list containing a summary of each of your customer managed keys. To find out more about a specific key, retrieve the details using the GET /customer-managed-keys/{customerManagedKeyId} endpoint.\n\nYou can filter keys in a particular project using GET /customer-managed-keys?tenantId={tenantId}. If the project query parameter is not specified, this endpoint lists all keys a user has access to across all projects.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tenantIdForCmkOptional"
+          }
+        ]
+      },
+      "post": {
+        "summary": "Creates a new customer managed key",
+        "tags": [
+          "customer managed keys"
+        ],
+        "operationId": "post-customer-managed-keys",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerManagedKey"
+                },
+                "examples": {
+                  "Key is being created": {
+                    "value": {
+                      "data": {
+                        "id": "8c764aed-8eb3-4a1c-92f6-e4ef0c7a6ed9",
+                        "name": "Instance01",
+                        "created": "2024-01-31T14:06:57Z",
+                        "cloud_provider": "aws",
+                        "key_id": "arn:aws:kms:us-east-1:123456789:key/11111-a222-1212-x789-1212f1212f",
+                        "region": "us-east-1",
+                        "type": "enterprise-db",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "status": "pending"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            },
+            "links": {
+              "GetInstanceDetails": {
+                "operationId": "get-customer-managed-key-id",
+                "parameters": {
+                  "customerManagedKeyId": "$response.body#/data/id"
+                }
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "400": {
+            "description": "The request body contains malformed syntax, or is otherwise invalid. Please check and adjust the request before attempting to send it again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "This endpoint creates a new Customer Managed Key in Aura. Creating a new key is an asynchronous operation.\n\nBefore you can use the key you will need to setup permissions for it. Log in to the Console, navigate to 'Customer Managed Keys' and click on the Edit icon next to the Key in order to see the instructions.\n\nYou can poll the current status of this operation by periodically getting the key details using the GET `/customer-managed-keys/{customerManagedKeyId}` endpoint.\n\nOnce the key has a status of `ready` you can use it for creating new instances by setting the `customer_managed_key_id` field.\n\nNote for Virtual Dedicated Cloud customers: In the example schema below, the `enterprise-db` type is used to represent Virtual Dedicated Cloud.\n\nThis endpoint requires the `Content-Type: application/json` header to be set.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "region": {
+                    "$ref": "#/components/schemas/InstanceRegion"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Production Key",
+                    "maxLength": 30,
+                    "minLength": 1,
+                    "description": "The name of the key (any UTF-8 characters with no trailing or leading whitespace)."
+                  },
+                  "instance_type": {
+                    "$ref": "#/components/schemas/InstanceType"
+                  },
+                  "tenant_id": {
+                    "type": "string",
+                    "description": "Project ID"
+                  },
+                  "cloud_provider": {
+                    "$ref": "#/components/schemas/CloudProvider"
+                  },
+                  "key_id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key_id",
+                  "region",
+                  "name",
+                  "instance_type",
+                  "tenant_id",
+                  "cloud_provider"
+                ]
+              },
+              "examples": {
+                "Creates a Customer Managed Key": {
+                  "value": {
+                    "key_id": "arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab",
+                    "name": "Production Key",
+                    "cloud_provider": "aws",
+                    "instance_type": "enterprise-db",
+                    "region": "us-west-2",
+                    "tenant_id": "YOUR_PROJECT_ID"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customer-managed-keys/{customerManagedKeyId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/customerManagedKeyId"
+        }
+      ],
+      "get": {
+        "summary": "Returns customer managed key details",
+        "tags": [
+          "customer managed keys"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerManagedKey"
+                },
+                "examples": {
+                  "Customer Managed Key details": {
+                    "value": {
+                      "data": {
+                        "id": "8c764aed-8eb3-4a1c-92f6-e4ef0c7a6ed9",
+                        "name": "Instance01",
+                        "created": "2024-01-31T14:06:57Z",
+                        "cloud_provider": "aws",
+                        "key_id": "arn:aws:kms:us-east-1:123456789:key/11111-a222-1212-x789-1212f1212f",
+                        "region": "us-east-1",
+                        "type": "enterprise-db",
+                        "tenant_id": "YOUR_PROJECT_ID",
+                        "status": "ready"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/CustomerManagedKeyNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "operationId": "get-customer-managed-key-id",
+        "description": "This endpoint returns details about a specific Customer Managed Key."
+      },
+      "delete": {
+        "summary": "Deletes a customer managed key",
+        "tags": [
+          "customer managed keys"
+        ],
+        "operationId": "delete-customer-managed-key-id",
+        "responses": {
+          "204": {
+            "description": "Key was deleted.",
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "400": {
+            "description": "The request body contains malformed syntax, or is otherwise invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "Trying to delete an active key": {
+                    "value": {
+                      "errors": [
+                        {
+                          "message": "Can not delete encryption key <UUID>. The key is linked to an active instance.",
+                          "reason": "encryption-key-is-active"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/CustomerManagedKeyNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        },
+        "description": "Deletes a Customer Managed Key from Aura.\n\nNote that you can only delete a Key if it is not being used by any instances, otherwise you will get a 400 response with the reason field set to `encryption-key-is-active`."
+      }
+    },
+    "/tenants/{tenantId}/metrics-integration": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/tenantId"
+        }
+      ],
+      "get": {
+        "summary": "Returns project metrics integration details",
+        "tags": [
+          "projects"
+        ],
+        "operationId": "get-project-metrics-integration-details",
+        "description": "This endpoint returns details of a specific Aura project's metrics integration.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsIntegrationDetails"
+                },
+                "examples": {
+                  "Metrics Integration Details": {
+                    "value": {
+                      "data": {
+                        "endpoint": "https://customer-metrics-api.neo4j.io/api/v1/tenantId/metrics"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "X-Tyk-Api-Expires": {
+                "$ref": "#/components/headers/X-Tyk-Api-Expires"
+              },
+              "X-Request-Id": {
+                "$ref": "#/components/headers/X-Request-Id"
+              }
+            }
+          },
+          "308": {
+            "$ref": "#/components/responses/PermanentRedirect"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/ProjectNotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          },
+          "502": {
+            "$ref": "#/components/responses/BadGateway"
+          },
+          "503": {
+            "$ref": "#/components/responses/ServiceUnavailable"
+          },
+          "504": {
+            "$ref": "#/components/responses/GatewayTimeout"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Project": {
+        "type": "object",
+        "description": "Describes an Aura project.",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "instance_configurations"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id of the project"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the project"
+              },
+              "instance_configurations": {
+                "type": "array",
+                "description": "A list of instance configurations that are supported by the project",
+                "items": {
+                  "type": "object",
+                  "description": "A configuration for an instance",
+                  "required": [
+                    "region",
+                    "region_name",
+                    "type",
+                    "version",
+                    "memory",
+                    "cloud_provider"
+                  ],
+                  "properties": {
+                    "region": {
+                      "$ref": "#/components/schemas/InstanceRegion"
+                    },
+                    "region_name": {
+                      "type": "string",
+                      "description": "A human-friendly name for the region"
+                    },
+                    "type": {
+                      "$ref": "#/components/schemas/InstanceType"
+                    },
+                    "memory": {
+                      "$ref": "#/components/schemas/InstanceMemory"
+                    },
+                    "version": {
+                      "$ref": "#/components/schemas/InstanceVersion"
+                    },
+                    "cloud_provider": {
+                      "$ref": "#/components/schemas/CloudProvider"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProjectSummary": {
+        "type": "object",
+        "description": "Summary of an Aura project details, as returned in the get projects endpoint.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of the project"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the project"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "Instance": {
+        "type": "object",
+        "description": "Describes an Aura instance.",
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "status",
+              "connection_url",
+              "cloud_provider",
+              "tenant_id",
+              "memory",
+              "region",
+              "type"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id of the instance"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the instance"
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the instance",
+                "enum": [
+                  "creating",
+                  "destroying",
+                  "running",
+                  "pausing",
+                  "paused",
+                  "suspending",
+                  "suspended",
+                  "resuming",
+                  "loading",
+                  "loading failed",
+                  "restoring",
+                  "updating",
+                  "overwriting"
+                ]
+              },
+              "connection_url": {
+                "type": "string",
+                "description": "URL for connecting to the Neo4j instance"
+              },
+              "metrics_integration_url": {
+                "type": "string",
+                "description": "Metrics integration endpoint URL for the Neo4j instance"
+              },
+              "region": {
+                "$ref": "#/components/schemas/InstanceRegion"
+              },
+              "type": {
+                "$ref": "#/components/schemas/InstanceType"
+              },
+              "cloud_provider": {
+                "$ref": "#/components/schemas/CloudProvider"
+              },
+              "tenant_id": {
+                "type": "string",
+                "description": "The project to which the instance belongs to"
+              },
+              "memory": {
+                "$ref": "#/components/schemas/InstanceMemory"
+              },
+              "storage": {
+                "type": "string",
+                "description": "Storage allocated to the instance. **This field is NOT returned for free instances**"
+              },
+              "customer_managed_key_id": {
+                "type": "string",
+                "description": "ID of the Customer Managed Key if one was used for creating the instance"
+              },
+              "graph_nodes": {
+                "type": "string",
+                "description": "The number of nodes in an Instance. **This field is returned ONLY for free instances**"
+              },
+              "graph_relationships": {
+                "type": "string",
+                "description": "The number of relationships in an Instance. **This field is returned ONLY for free instances**"
+              },
+              "secondary_count": {
+                "type": "number",
+                "description": "The number of secondaries in an Instance. **This field is returned ONLY for VDC instances**"
+              },
+              "cdc_enrichment_mode": {
+                "type": "string",
+                "description": "The CDC mode of the instance. **This field is returned ONLY for VDC or BC instances**",
+                "enum": [
+                  "OFF",
+                  "DIFF",
+                  "FULL"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CustomerManagedKey": {
+        "type": "object",
+        "description": "Describes a Customer Managed Key",
+        "properties": {
+          "data": {
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The id of the key"
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the key"
+              },
+              "cloud_provider": {
+                "type": "string",
+                "description": "The cloud provider of the key",
+                "enum": [
+                  "gcp",
+                  "aws",
+                  "azure"
+                ]
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where this key was configured for. The key will be only be available for encrypting instances in this region."
+              },
+              "instance_type": {
+                "type": "string",
+                "description": "The type of instances this key was configured for. Either 'enterprise-db' or 'enterprise-ds'.",
+                "enum": [
+                  "enterprise-db",
+                  "enterprise-ds"
+                ]
+              },
+              "key_id": {
+                "type": "string",
+                "description": "The ID of the key in your Cloud Provider. Equal to Key ARN for AWS."
+              },
+              "created": {
+                "type": "string",
+                "description": "Timestamp when the key was created"
+              },
+              "status": {
+                "type": "string",
+                "description": "The status of the key"
+              },
+              "tenant_id": {
+                "type": "string",
+                "description": "The project to which the key belongs to"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "cloud_provider",
+              "region",
+              "instance_type",
+              "key_id",
+              "created",
+              "status",
+              "tenant_id"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "InstanceSummary": {
+        "type": "object",
+        "description": "Summary of an Aura instance details, as returned in the get instances endpoint.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The id of the instance"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the instance"
+          },
+          "tenant_id": {
+            "type": "string",
+            "description": "The project to which the instance belongs to"
+          },
+          "cloud_provider": {
+            "type": "string",
+            "description": "The cloud provider of the instance",
+            "enum": [
+              "gcp",
+              "aws",
+              "azure"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "tenant_id",
+          "cloud_provider"
+        ]
+      },
+      "InstanceRegion": {
+        "type": "string",
+        "description": "The region where the instance is hosted. Please refer to your Aura project's instance configurations, returned by the GET /tenants/{tenantId} endpoint, for a list of valid regions for your project."
+      },
+      "InstanceMemory": {
+        "type": "string",
+        "enum": [
+          "128GB",
+          "8GB"
+        ],
+        "description": "The size of the instance memory in GB. Please refer to your Aura project's instance configurations, returned by the GET /tenants/{tenantId} endpoint, for a list of valid sizes for your project."
+      },
+      "InstanceType": {
+        "type": "string",
+        "enum": [
+          "enterprise-db",
+          "enterprise-ds",
+          "business-critical",
+          "professional-db",
+          "professional-ds",
+          "free-db"
+        ],
+        "description": "The type of the instance. Please refer to your Aura project's instance configurations, returned by the GET /tenants/{tenantId} endpoint, for a list of valid types for your project. The `enterprise-db` type is used to represent Virtual Dedicated Cloud."
+      },
+      "InstanceVersion": {
+        "type": "string",
+        "description": "The Neo4j version of the instance. Please refer to your Aura project's instance configurations, returned by the GET /tenants/{tenantId} endpoint, for a list of valid versions for your project."
+      },
+      "CloudProvider": {
+        "type": "string",
+        "description": "The cloud provider hosting the instance. Please refer to your Aura project's instance configurations, returned by the GET /tenants/{tenantId} endpoint, for a list of valid cloud_providers for your project.",
+        "enum": [
+          "gcp",
+          "aws",
+          "azure"
+        ]
+      },
+      "MetricsIntegrationDetails": {
+        "type": "object",
+        "description": "Details about project metrics integration.",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "endpoint": {
+                "type": "string",
+                "format": "uri",
+                "description": "Metrics integration endpoint URL."
+              }
+            },
+            "required": [
+              "endpoint"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "description": "Used for describing one or more errors returned by an endpoint.",
+        "title": "Error",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Detailed explanation of an error that has been encountered. Aimed at developers debugging issues, not recommended to be passed onto the end user."
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "The category of the error."
+                },
+                "field": {
+                  "type": "string",
+                  "description": "The name of the property in the request body that this error refers to, if applicable."
+                }
+              },
+              "required": [
+                "message",
+                "reason"
+              ]
+            }
+          }
+        },
+        "required": [
+          "errors"
+        ]
+      },
+      "MiddlewareError": {
+        "type": "object",
+        "description": "Sometimes our API middleware may return an error in this format.\n\nThe error message is an explanation of the error that has been encountered. Aimed at developers debugging issues, not recommended to be passed onto the end user.",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message describing the problem"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oauthToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "PermanentRedirect": {
+        "description": "One of our endpoints have moved permanently, or you are attempting to access the API using HTTP.",
+        "headers": {
+          "Location": {
+            "schema": {
+              "type": "string",
+              "format": "uri-reference"
+            },
+            "description": "URI reference of the permanent new location for this resource"
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "The request body contains malformed syntax, or is otherwise invalid. Please check and adjust the request before attempting to send it again.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "The request cannot be verified as belonging to an authentic client.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "The access token has expired / been revoked, or the client does not have permissions to perform the requested action.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "InstanceNotFound": {
+        "description": "The requested instance could not be found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "Instance not found": {
+                "value": {
+                  "errors": [
+                    {
+                      "message": "DB not found: 24d18db5",
+                      "reason": "db-not-found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "ProjectNotFound": {
+        "description": "The requested project could not be found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "Project not found": {
+                "value": {
+                  "errors": [
+                    {
+                      "message": "The tenant you specified could not be found",
+                      "reason": "tenant-not-found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "This indicates that this action cannot be performed due to an ongoing operation, such as cloning from this instance.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "Trying to pause an instance which is currently resuming": {
+                "value": {
+                  "errors": [
+                    {
+                      "message": "The database is current undergoing an operation: resuming",
+                      "reason": "ongoing-database-operation"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnsupportedMediaType": {
+        "description": "Please specify the \"Content-Type\" header with a valid media type (which is \"application/json\" for all endpoints except for the POST /oauth/token endpoint).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": ":- Rate limit exceeded or the server couldn't handle the current level of traffic.\nPlease see the API Overview for a description of API Rate Limitations.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "required": false,
+            "schema": {
+              "example": "5"
+            },
+            "description": "Suggested minimum time to wait before retrying the request if it is safe to do so.\n\nThis is either a relative number of seconds, or a date string."
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "This indicates a bug in the API server. The problem may be transient, so consider retrying.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "BadGateway": {
+        "description": "This indicates a problem with the API server. Consider retrying.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "ServiceUnavailable": {
+        "description": "This indicates the server is currently down or overloaded. Consider retrying.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "SnapshotNotFound": {
+        "description": "No such snapshot:snapshot-timestamp-1 for DB Instance01",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "Snapshot not found": {
+                "value": {
+                  "errors": [
+                    {
+                      "message": "Snapshot not found: snapshot-timestamp-1",
+                      "reason": "snapshot-not-found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "GatewayTimeout": {
+        "description": "This indicates a problem with the server, where the request processing time was unusually slow, causing a timeout error. Consider retrying.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Error"
+                },
+                {
+                  "$ref": "#/components/schemas/MiddlewareError"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "CustomerManagedKeyNotFound": {
+        "description": "The requested customer managed key could not be found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "Instance not found": {
+                "value": {
+                  "errors": [
+                    {
+                      "message": "Encryption Key not found: <UUID>",
+                      "reason": "encryption-key-not-found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "instanceId": {
+        "name": "instanceId",
+        "in": "path",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Instance ID",
+        "required": true
+      },
+      "customerManagedKeyId": {
+        "name": "customerManagedKeyId",
+        "in": "path",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Customer Managed Key ID",
+        "required": true
+      },
+      "tenantId": {
+        "name": "tenantId",
+        "in": "path",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Project ID",
+        "required": true
+      },
+      "tenantIdOptional": {
+        "name": "tenantId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": "An optional project ID to filter instances in a project"
+      },
+      "tenantIdForCmkOptional": {
+        "name": "tenantId",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string"
+        },
+        "description": "An optional project ID to filter customer managed keys in a project"
+      }
+    },
+    "headers": {
+      "X-Tyk-Api-Expires": {
+        "description": "This is an optional response header, reserved for future use.\n\nThis header will be set with a date if this version of the API is deprecated and due to expire.\n\nOnce an API version has expired it will no longer be available.\n\nWe will communicate API deprecation and expiry in advance and try to keep the migration path as seamless as possible.",
+        "schema": {
+          "type": "string",
+          "example": "Mon, 03 Mar 2025 00:00:00 UTC"
+        }
+      },
+      "X-Request-Id": {
+        "description": "This response header is returned with all authenticated API requests.\n\nThe header is set with a unique request id that tracks every Aura API request across our internal components.\n\nThis Id would be particularly useful to quote for any troubleshooting when contacting Aura Support.",
+        "schema": {
+          "type": "string",
+          "example": "8a35fa95b983aeff3e70394832706f45/12383853214941892751"
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "oauthToken": []
+    }
+  ]
+}

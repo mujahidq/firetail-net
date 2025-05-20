@@ -1,0 +1,123 @@
+{
+  "components": {},
+  "info": {
+    "contact": {
+      "email": "support@firetail.io"
+    },
+    "description": "This specification was generated from 15 logs ingested into FireTail's platform",
+    "title": "FireTail generated OpenAPI spec",
+    "version": "v0.0.1"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/pet/{petId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "petId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-custom-cookie",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "tags": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A description for the 200 response is required here",
+            "headers": {
+              "x-powered-by": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-firetail-response-count": 10
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "details": {
+                      "properties": {
+                        "accessResolverId": {
+                          "type": "string"
+                        },
+                        "authenticatedPrincipal": {
+                          "type": "integer"
+                        },
+                        "authorisedPrincipal": {
+                          "type": "integer"
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "status": {
+                      "type": "integer"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A description for the 403 response is required here",
+            "headers": {
+              "x-powered-by": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "x-firetail-response-count": 5
+          }
+        },
+        "x-firetail-request-count": 15
+      }
+    }
+  },
+  "security": [],
+  "servers": []
+}
