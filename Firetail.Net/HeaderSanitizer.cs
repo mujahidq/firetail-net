@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 namespace Firetail;
 
@@ -31,6 +32,12 @@ internal static class HeaderSanitizer
     {
         var hiddenRequestHeaders = new HashSet<string>(DefaultHiddenRequestHeaders, StringComparer.OrdinalIgnoreCase);
         var hiddenResponseHeaders = new HashSet<string>(DefaultHiddenResponseHeaders, StringComparer.OrdinalIgnoreCase);
+
+        if (firetailContext.SensitiveHeaders?.Any() == true)
+        {
+            hiddenRequestHeaders.UnionWith(firetailContext.SensitiveHeaders);
+            hiddenResponseHeaders.UnionWith(firetailContext.SensitiveHeaders);
+        }
 
         // Add headers from schema
         var schema = firetailContext.Match;

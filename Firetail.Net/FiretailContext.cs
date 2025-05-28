@@ -20,4 +20,5 @@ internal class FiretailContext
     public bool Intercepted { get; internal set; }
     public string? Method { get; internal set; }
     public IOpenApiPathItem? Match { get; internal set; }
+    public string[] SensitiveHeaders { get; set; } = [];
 }

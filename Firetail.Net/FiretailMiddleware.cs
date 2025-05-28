@@ -17,7 +17,7 @@ internal class FiretailMiddleware(
     public async Task InvokeAsync(HttpContext httpContext)
     {
         var cancellationToken = httpContext.RequestAborted;
-        var firetailContext = new FiretailContext { Observations = [] };
+        var firetailContext = new FiretailContext { Observations = [], SensitiveHeaders = _firetailOptions.SensitiveHeaders };
 
         try
         {
