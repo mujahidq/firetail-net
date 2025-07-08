@@ -24,7 +24,8 @@ public class FiretailSample2Tests
         _openApiDoc = new OpenApiSpecLoader().Load(filePath).Item1;
         _options = new FiretailOptions
         {
-            BasePath = _openApiDoc.GetBasePath()
+            BasePath = _openApiDoc.GetBasePath(),
+            SensitiveHeaders = new string[] {"authorization"}
         };
         var httpClientFactory = new Mock<IHttpClientFactory>().Object;
         var logger = new Mock<ILogger<FiretailLoggingService>>().Object;

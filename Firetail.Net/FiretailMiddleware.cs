@@ -113,7 +113,7 @@ internal class FiretailMiddleware(
         {
             errorResponse = CreateError(requestErrors.First().Status,
                "firetail.request.validation.failed", "Failed to validate request",
-               requestErrors);
+               requestErrors.ToArray());
             return false;
         }
         return true;
@@ -161,7 +161,7 @@ internal class FiretailMiddleware(
     private static bool IsUnsupportedContentType(string? contentType) =>
         !string.IsNullOrEmpty(contentType) && contentType != "application/json";
 
-    private static LogEntry CreateError(int statusCode, string type, string title, params List<ErrorDetails> details)
+    private static LogEntry CreateError(int statusCode, string type, string title, params ErrorDetails[] details)
     {
         return new LogEntry
         {
@@ -171,6 +171,7 @@ internal class FiretailMiddleware(
             Details = details.ToList()
         };
     }
+
 
     private void FinalizeLogAsync(FiretailContext firetailContext, HttpContext httpContext)
     {
